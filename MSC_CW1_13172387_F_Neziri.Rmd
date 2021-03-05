@@ -1,0 +1,614 @@
+---
+title: "MSC_CW1_13172387_F_Neziri"
+author: "Florian Neziri"
+date: "17/11/2019"
+output: word_document
+---
+
+#### 1. Statistical learning methods
+
+For each of parts (a) through (d), indicate whether we would generally expect the performance of a flexible statistical learning method to be better or worse than an inflexible method. Justify your answer.
+
+###### (a) The number of predictors p is extremely large, and the number of observations n is small.
+
+A flexible method would perform **worse** than an infelxible method as, due to the small sample size, the flexible method would casue overfitting.
+
+###### (b) The sample size n is extremely large, and the number of predictors p is small.
+
+A flexible method would perform **better** than an inflexible method due to the extremely large sample size. The flexible method would also reduce bias.
+
+###### (c) The relationship between the predictors and response is highly non-linear.
+
+A flexible method would perform **better** as it will allow us to find the non-linear relationship. 
+
+###### (d) The standard deviation of the error terms, i.e. σ = sd(ε), is extremely high.
+
+A flexible method would perform **worse** as it will fit to the noise in the error terms and increase variance.
+
+\newpage
+
+#### 2. Bayes’ Rule
+
+Given a dataset including 20 samples (S_1, . . . , S_20) about the temperature (i.e. hot or cool) for playing golf (i.e. yes or no), you are required to use the Bayes’ rule to calculate the probability of playing golf according to the temperature, i.e. P(Play Golf | Temperature).
+
+&nbsp;
+
+**Based on the dataset, we can calculate:**
+
+P(Play Golf = Yes) = 10/20 = 0.5
+
+P(Play Golf = No) = 10/20 = 0.5
+
+P(Temp = Hot) = 12/20 = 3/5 = 0.6
+
+P(Temp = Cool) = 8/20 = 2/5 = 0.4
+
+P(Temp = Hot | Play Golf = Yes) = 5/10 = 0.5
+
+P(Temp = Cool | Play Golf = Yes) = 5/10 = 0.5
+
+P(Temp = Hot | Play Golf = No) = 7/10 = 0.7
+
+P(Temp = Cool | Play Golf = No) = 3/10 = 0.3
+
+&nbsp;
+
+**According to the Bayes’ rule, we can calculate:**
+
+P(Play Golf = Yes | Temp = Hot) = 
+
+(P(Temp = Hot | Play Golf = Yes)P(Play Golf = Yes))/P(Temp = Hot) =
+
+(0.5 * 0.5) / 0.6 = 0.4167 or 5/8
+
+P(Play Golf = No | Temp = Hot) = 
+
+(P(Temp = Hot | Play Golf = No)P(Play Golf = No))/P(Temp = Hot) = 
+
+(0.7 * 0.5) / 0.6 = 0.5833 or 7/12
+
+P(Play Golf = Yes | Temp = Cool) = 
+
+(P(Temp = Cool | Play Golf = Yes)P(Play Golf = Yes))/P(Temp = Cool) =
+
+(0.5 * 0.5) / 0.4 = 0.625 or 5/8
+
+P(Play Golf = No | Temp = Cool) = 
+
+(P(Temp = Cool | Play Golf = No)P(Play Golf = No))/P(Temp = Cool) =
+
+(0.3 * 0.5) / 0.4 = 0.375 or 3/8
+
+\newpage
+
+#### 3. Descriptive Analysis
+
+```{r,echo=FALSE}
+library(ISLR)
+data("Auto")
+```
+
+###### (a) Which of the predictors are quantitative, and which are qualitative? 
+
+```{r,echo=FALSE}
+sapply(Auto, is.numeric)
+```
+  
+Quantitative: mpg, cylinders, displacement, horsepower, weight, acceleration, year, origin
+
+Qualitative: name
+
+###### (b) What is the range of each quantitative predictor? You can answer this using the range() function.  
+
+```{r,echo=FALSE}
+quant <- sapply(Auto, is.numeric)
+sapply(Auto[,quant],range)
+```
+
+###### (c) What is the median and variance of each quantitative predictor?
+
+Median of each quantitative predictor:  
+
+```{r,echo=FALSE}
+sapply(Auto[,quant],median)
+```
+
+Variance of each quantitative predictor:
+
+```{r,echo=FALSE}
+lapply(Auto[,quant], var)
+``` 
+
+###### (d) Now remove the 11th through 79th observations (inclusive) in the dataset. What is the range, median, and variance of each predictor in the subset of the data that remains? 
+
+```{r,echo=FALSE}
+Auto.subset <- Auto[-(11:79),]
+```
+
+Ranges for quantitative predictors in subset:
+
+```{r,echo=FALSE}
+quant.subset <- sapply(Auto.subset, is.numeric)
+sapply(Auto.subset[,quant.subset],range)
+```
+
+Medians for quantitative predictors in subset:
+
+```{r,echo=FALSE}
+sapply(Auto[,quant.subset],median)
+```
+
+Variances for quantitative predictors in subset:
+
+```{r,echo=FALSE}
+lapply(Auto[,quant.subset], var)
+``` 
+
+###### (e) Using the full data set, investigate the predictors graphically, using scatterplots or other tools of your choice. Create some plots highlighting the relationships among the predictors. Comment on your ﬁndings.
+
+```{r,echo=FALSE}
+plot(Auto)
+```
+
+Based on the plot above there seem to be a lot of relationships between the predictors.
+
+```{r,echo=FALSE}
+plot(mpg ~ year, data = Auto, main = 'Relationship between mpg and year')
+```
+
+Cars that were built later on tend to have greater mpg which makes sense as car makers could take advantage of advances in technology making car engines more efficient.
+
+
+```{r,echo=FALSE}
+plot(displacement ~ cylinders, data = Auto, main = 'Relationship between displacement and cylinders')
+```
+
+There is a clear positive relationship between cylinders and displacement. Seeing as the displacement of a car engine is the total volume of all the cylinders it has, this isn't suprising. 
+
+Similarly, an engine with more cylinders will produce more horsepower as we can see in the graph below:
+
+```{r,echo=FALSE}
+plot(horsepower ~ cylinders, data = Auto, main = 'Relationship between horsepower and cylinders')
+```
+
+Cylinders in a car engine are the power units of an engine; they are the chambers where the fuel is burned and turned into power so this is a relationship we'd expect to see.
+
+A lot of the predictors therefore directly impact one another and are not independent of each other. 
+
+###### (f)  Suppose that we wish to predict gas mileage (mpg) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting mpg? Justify your answer.
+
+**Yes.** There seems to be a strong relationship between mpg and every other quantitative variable. See the graphs below for the relationship between each variable and mpg.
+
+```{r,echo=FALSE}
+plot(mpg ~ displacement, data = Auto, main = 'Relationship between mpg and displacement')
+```
+
+The larger the displacement of a car's engine, the less miles per gallon the car achieves.
+
+```{r,echo=FALSE}
+plot(mpg ~ weight, data = Auto, main = 'Relationship between mpg and weight')
+```
+
+The heavier a car, the less miles per gallon it achieves.
+
+```{r,echo=FALSE}
+plot(mpg ~ cylinders, data = Auto, main = 'Relationship between mpg and cylinders')
+```
+
+The more cylinders a car engine has, the more miles per gallon the car achieves.
+
+```{r,echo=FALSE}
+plot(mpg ~ year, data = Auto, main = 'Relationship between mpg and year')
+```
+
+Cars generally achieve higher miles per gallon if they were built later (are newer).
+
+```{r,echo=FALSE}
+boxplot(mpg ~ origin, data = Auto, main = 'Relationship between mpg and origin')
+```
+
+Cars with origin = 3 (from Japan), achieve higher miles per gallon than those with origin = 2 (from Europe), and both achieve higher miles per gallon than cars with origin = 1 (from the USA).
+
+\newpage
+
+#### 4. Linear Regression
+
+###### (a) Use the lm() function to perform a simple linear regression with mpg as the response and horsepower as the predictor. Use the summary() function to print the results. Comment on the output.
+
+```{r,echo=FALSE}
+lm.fit <- lm(mpg ~ horsepower, data = Auto)
+summary(lm.fit)
+```
+
+###### i. Is there a relationship between the predictor and the response?
+
+**Yes.** The p-value is very small meaning we can reject the null hypothesis that there is no relationship between horsepower and mpg. 
+
+###### ii. How strong is the relationship between the predictor and the response?
+
+**Fairly strong**. The R-squared value is 0.6059 which implies that 60.59% of the sample variation in mpg is explained by horsepower.
+
+###### iii. Is the relationship between the predictor and the response positive or negative?
+
+**Negative**. The coefficient for horsepower is -0.157845, meaning that for every additional horsepower a car's engine has, the miles per gallon falls by 0.157845 miles.
+
+###### iv. What is the predicted mpg associated with a horsepower of 89? What are the associated 99% conﬁdence and prediction intervals? 
+
+The predicted mpg associated with a horsepower of 89 is: `r predict(lm.fit,data.frame(horsepower=(c(89))))`
+
+The associated 99% confidence and prediction intervals or predicted mpg with a horsepower of 89 are as follows:
+
+99% Confidence intervals:
+
+```{r,echo=FALSE}
+predict(lm.fit,data.frame(horsepower=(c(89))),interval="confidence",level=0.99)
+```
+
+99% Prediction intervals:
+
+```{r,echo=FALSE}
+predict(lm.fit,data.frame(horsepower=(c(89))),interval="prediction",level=0.99)
+```
+
+###### (b) Plot the response and the predictor. Use the abline() function to display the least squares regression line. 
+
+```{r,echo=FALSE}
+plot(mpg ~ horsepower, data = Auto,
+xlab ='horsepower', ylab = 'mpg',
+main = 'Plot of mpg vs horsepower')
+abline(lm.fit)
+```
+
+###### (c) Plot the 99% conﬁdence interval and prediction interval in the same plot as (b) using different colours and legends.
+
+```{r,echo=FALSE}
+plot(mpg ~ horsepower, data = Auto,
+xlab = 'horsepower', ylab = 'mpg',
+main = 'Confidence and prediction intervals')
+
+abline(lm.fit)
+
+new.horsepower <- data.frame(horsepower=seq(40,240,length=50))
+p_conf <- predict(lm.fit, new.horsepower, interval="confidence",level = 0.99)
+p_pred <- predict(lm.fit, new.horsepower, interval="prediction", level=0.99)
+lines(new.horsepower$horsepower, p_conf[,"lwr"], col="red", type="b", pch="+")
+lines(new.horsepower$horsepower, p_conf[,"upr"], col="red", type="b", pch="+")
+lines(new.horsepower$horsepower, p_pred[,"upr"], col="blue", type="b", pch="*")
+lines(new.horsepower$horsepower, p_pred[,"lwr"], col="blue", type="b", pch="*")
+legend("topright",
+pch=c("+","*"),
+col=c("red","blue"),
+legend = c("confidence","prediction"))
+```
+
+\newpage
+
+#### 5. Logistic Regression
+
+A recent study has shown that the accurate prediction of the oﬃce room occupancy leads to potential energy savings of 30%. In this question, you are required to build logistic regression models by using diﬀerent environmental measurements as features,tra such as temperature, humidity, light, CO2 and humidity ratio, to predict the office room occupancy. The provided training dataset consists of 2,000 samples, whilst the testing dataset consists of 300 samples.
+
+###### (a) Load the training and testing datasets from corresponding ﬁles, and display the statistics about different features in the training dataset.
+
+```{r,echo=FALSE}
+training <- read.delim("Training_set for Q5.txt", header = TRUE, sep = ",")
+testing <- read.delim("Testing_set for Q5.txt", header = TRUE, sep = ",")
+```
+
+First need to convert Occupancy to a factor as it should be treated as a categorical variable.
+
+```{r,echo=TRUE}
+training$Occupancy <- factor(training$Occupancy)
+testing$Occupancy <- factor(testing$Occupancy)
+```
+
+Statistics for the training data:
+
+```{r,echo=FALSE}
+summary(training)
+```
+
+###### (b) Build a logistic regression model by only using the Temperature feature to predict the room occu;pancy. Display the confusion matrix and the predictive accuracy obtained on the testing dataset. 
+
+In my confusion matrices, Occupancy = 0 means unoccupied, and Occupancy = 1 means occupied.
+
+```{r,echo=FALSE}
+training.temp <- glm(Occupancy ~ Temperature, data = training, family = binomial)
+predict.training.temp <- predict(training.temp, testing, type = "response")
+binary.predict.training.temp <- ifelse(predict.training.temp > 0.5,1,0)
+```
+
+The confusion matrix when using Temperature to predict room occupancy:
+
+```{r,echo=FALSE}
+CM.training.temp <- table(prediction = binary.predict.training.temp, truth = testing$Occupancy)
+print(CM.training.temp)
+```
+
+The predictive accuracy of the logistic regression model, when using Temperature to predict room occupancy, is: `r mean(binary.predict.training.temp == testing$Occupancy)`
+
+###### (c) Build a logistic regression model by only using the Humidity feature to predict the room occupancy. Display the confusion matrix and the predictive accuracy obtained on the testing dataset.
+
+```{r,echo=FALSE}
+training.hum <- glm(Occupancy ~ Humidity, data = training, family = binomial)
+predict.training.hum <- predict(training.hum, testing, type = "response")
+binary.predict.training.hum <- ifelse(predict.training.hum > 0.5,1,0)
+```
+
+The confusion matrix when using Humidity to predict room occupancy:
+
+```{r,echo=FALSE}
+CM.training.hum <- table(prediction = binary.predict.training.hum, truth = testing$Occupancy)
+print(CM.training.hum)
+```
+
+The predictive accuracy of the logistic regression model, when using Humidity to predict room occupancy, is: `r mean(binary.predict.training.hum == testing$Occupancy)`
+
+###### (d) Build a logistic regression model by using all features to predict the room occupancy. Display the confusion matrix and the predictive accuracy obtained on the testing dataset. 
+
+```{r,echo=FALSE}
+training.all <- glm(Occupancy ~ Temperature+Humidity+Light+CO2+HumidityRatio
+                    , data = training, family = binomial)
+predict.training.all <- predict(training.all, testing, type = "response")
+binary.predict.training.all <- ifelse(predict.training.all > 0.5,1,0)
+```
+
+The confusion matrix when using all variables to predict room occupancy:
+
+```{r,echo=FALSE}
+CM.training.all <- table(prediction = binary.predict.training.all, truth = testing$Occupancy)
+print(CM.training.all)
+```
+
+The predictive accuracy of the logistic regression model, when using all variables to predict room occupancy, is: `r mean(binary.predict.training.all == testing$Occupancy)`
+
+###### (e) Compare the predictive performance of three different models by drawing ROC curves and calculating the AUROC values. Discuss the comparison results.
+
+```{r,echo=FALSE}
+library(ROCR)
+```
+
+```{r,echo=FALSE}
+pr.training.temp <- prediction(predict.training.temp, testing$Occupancy)
+auroc.training.temp <- performance(pr.training.temp, measure = "auc")
+auroc.training.temp.value <- auroc.training.temp@y.values[[1]]
+```
+
+The AUROC value of the logistic regression model for Temperature on Occupancy is: `r auroc.training.temp.value`
+
+```{r,echo=FALSE}
+pr.training.hum <- prediction(predict.training.hum, testing$Occupancy)
+auroc.training.hum <- performance(pr.training.hum, measure = "auc")
+auroc.training.hum.value <- auroc.training.hum@y.values[[1]]
+```
+
+The AUROC value of the logistic regression model for Humidity on Occupancy is: `r auroc.training.hum.value`
+
+```{r,echo=FALSE}
+pr.training.all <- prediction(predict.training.all, testing$Occupancy)
+auroc.training.all <- performance(pr.training.all, measure = "auc")
+auroc.training.all.value <- auroc.training.all@y.values[[1]]
+```
+The AUROC value of the logistic regression model for all variables on Occupancy is: `r auroc.training.all.value`
+
+```{r,echo=FALSE}
+perf.training.temp <- performance(pr.training.temp, measure = "tpr", x.measure = "fpr")
+perf.training.hum <- performance(pr.training.hum, measure = "tpr", x.measure = "fpr")
+perf.training.all <- performance(pr.training.all, measure = "tpr", x.measure = "fpr")
+
+plot(perf.training.temp, col = "blue")
+legend(0.3,0.4,
+c(text=sprintf('AUROC (Temperature) = %s',
+round(auroc.training.temp.value, digits=3))),
+lty=1, cex=0.9, bty="n", col = c("blue"),
+y.intersp=1, inset=c(0.1,-0.15))
+
+plot(perf.training.hum, add = TRUE, col = "green")
+legend(0.3,0.3,
+c(text=sprintf('AUROC (Humidity) = %s',
+round(auroc.training.hum.value, digits=3))),
+lty=1, cex=0.9, bty="n", col = c("green"),
+y.intersp=1, inset=c(0.1,-0.15))
+
+plot(perf.training.all, add = TRUE, col = "red")
+legend(0.3,0.2,
+c(text=sprintf('AUROC (All Variables) = %s',
+round(auroc.training.all.value, digits=3))),
+lty=1, cex=0.9, bty="n", col = c("red"),
+y.intersp=1, inset=c(0.1,-0.15))
+
+abline(a = 0, b = 1)
+```
+
+The closer the ROC curve to the upper left corner, the higher the classification accuracy of model, and the greater the area under the curve (AUROC). We can see from the AUROC values calculated, and the ROC curves illustrated, that the model which uses all variable to predict room occupancy (the red line) obtains the best accuracy amongst the three models.
+
+\newpage
+
+#### 6. Resampling Methods
+
+We are trying to learn regression parameters for a dataset which we know was generated from a polynomial of a certain degree, but we do not know what this degree is.
+
+Assume the data was actually generated from a polynomial of degree 3 with some added noise, that is
+
+y = β0 +β1x+β2x2 +β3x3 +ε, ε ∼ N(0,1)
+
+For training we have 400 (x,y)-pairs and for testing we are using an additional set of 400 (x,y)-pairs. Since we do not know the degree of the polynomial we learn two models from the data:
+
+  - Model A learns parameters for a polynomial of degree 2, and
+  - Model B learns parameters for a polynomial of degree 4. 
+  
+###### (a) Which of these two models is likely to ﬁt the test data better? Justify your answer.
+
+**Polynomial of degree 4.**
+
+The original model is a polynomial of degree 3 and, as we
+have enough training data, the model we learn for a polynomial of degree 4 will likely fit a very small coefficient for x4.
+
+So, despite model B being a model of polynomial degree 4, it 
+should behave in a very similar way to a polynomial of degree 3, leading to a better fit to the data.
+
+###### (b) Generate the simulated data set as follows: 
+
+set.seed(235) 
+
+x = 12 + rnorm(400) 
+
+y = 1 - x + 4*x^2 - 5*x^3 + rnorm(400) 
+
+Create a scatterplot of X against Y. Comment on what you ﬁnd. 
+
+```{r,echo=FALSE}
+
+set.seed(235) 
+x <- 12 + rnorm(400) 
+y <- 1 - x + 4*x^2 - 5*x^3 + rnorm(400)
+
+plot(x, y, 
+main = "Q6 (b) Scatterplot of X and Y", 
+xlab = "x = 12 +rnorm(400)",
+ylab = "y = 1 - x + 4x^2 - 5x^3 + rnorm(400)"
+)
+```
+
+There appears to be a non-linear negative relationship between x and y.
+
+###### (c) Set the seed to be 34, and then compute the LOOCV and 10-fold CV errors that result from ﬁtting the following models using least squares: 
+
+i. Y = β0 +β1X +β2X2 +ε 
+
+ii. Y = β0 +β1X +β2X2 +β3X3 +β4X4 +ε. 
+
+Note you may ﬁnd it helpful to use the data.frame() function to create a single data set containing both X and Y.
+
+```{r,echo=FALSE}
+library(boot)
+Data.Q6 <- data.frame(x,y)
+```
+
+###### i. Y = β0 +β1X +β2X2 +ε 
+
+The LOOCV error is:
+
+```{r,echo=FALSE}
+set.seed(34)
+glm.fit.2 <- glm(y ~ poly(x,2), data = Data.Q6)
+cv.error.2 <- cv.glm(Data.Q6, glm.fit.2)$delta
+print(cv.error.2)
+```
+
+The 10-fold CV error is:
+
+```{r,echo=FALSE}
+set.seed(34)
+cv.error.2.k <- cv.glm(Data.Q6, glm.fit.2, K=10)$delta
+print(cv.error.2.k)
+```
+
+###### ii. Y = β0 +β1X +β2X2 +β3X3 +β4X4 +ε
+
+The LOOCV error is:
+
+```{r,echo=FALSE}
+set.seed(34)
+glm.fit.4 <- glm(y ~ poly(x,4), data = Data.Q6)
+cv.error.4 <- cv.glm(Data.Q6, glm.fit.4)$delta
+print(cv.error.4)
+```
+
+The 10-fold CV error is:
+
+```{r,echo=FALSE}
+set.seed(34)
+cv.error.4.k <- cv.glm(Data.Q6, glm.fit.4, K=10)$delta
+print(cv.error.4.k)
+```
+
+###### (d) Repeat (c) using random seed 68, and report your results. Are your results the same as what you got in (c)? Why?
+
+###### i. Y = β0 +β1X +β2X2 +ε 
+
+The LOOCV error is:
+
+```{r,echo=FALSE}
+set.seed(68)
+glm.fit.2.d <- glm(y ~ poly(x,2), data = Data.Q6)
+cv.error.2.d <- cv.glm(Data.Q6, glm.fit.2.d)$delta
+print(cv.error.2.d)
+```
+
+The 10-fold CV error is:
+
+```{r,echo=FALSE}
+set.seed(68)
+cv.error.2.d.k <- cv.glm(Data.Q6, glm.fit.2.d, K=10)$delta
+print(cv.error.2.d.k)
+```
+
+###### ii. Y = β0 +β1X +β2X2 +β3X3 +β4X4 +ε
+
+The LOOCV error is:
+
+```{r,echo=FALSE}
+set.seed(68)
+glm.fit.4.d <- glm(y ~ poly(x,4), data = Data.Q6)
+cv.error.4.d <- cv.glm(Data.Q6, glm.fit.4.d)$delta
+print(cv.error.4.d)
+```
+
+The 10-fold CV error is:
+
+```{r,echo=FALSE}
+set.seed(68)
+cv.error.4.d.k <- cv.glm(Data.Q6, glm.fit.4.d, K=10)$delta
+print(cv.error.4.d.k)
+```
+
+The LOOCV errors are the same with different seeds since LOOCV evaluates n folds of a single observation. 
+
+The data is split into the validation set - of size 1 - and the training set - of size n-1. We fit the model using the training set and then validate using the validation set, and repeat this process n times. Because we split based on 1 observation each time, repeating LOOCV multiple times will always yield the same result.
+
+The 10-fold CV errors are different with different seeds as we use k-folds (in this instance k=10). 
+
+With 10-fold CV we divide the data in 10 different parts, with the observations we used as our different seeds - 34 and 68 - falling into different folds. We then remove the first part, fit the model on the remaining k-1 parts, and see how good the predictions are on the left out part, and repeat this k different times taking out a different part each time 
+
+###### (e) Which of the models in (c) had the smallest LOOCV and 10-fold CV error? Is this what you expected? Explain your answer.
+
+The polynomial of degree 4 has the smaller LOOCV and 10-fold CV errors. Yes, this is what we expected in my answer in (a).
+
+###### (f) Comment on the coefficient estimates and the statistical signiﬁcance of the coeffcient estimates that results from ﬁtting the preferred model in (a).
+
+```{r,echo=FALSE}
+summary(glm.fit.4)
+```
+
+We see that the coefficients for x1, x2, and x3, have very small p-values and are therefore statiscally significant. The coefficients get smaller as the degree of x gets larger, and each coefficient is negative - highlighting the negative relatinship between x and y which is what we expected from the scatterplot in (b).
+
+The coefficent for x4 has a large p-value and is therefore statiscally insignificant, which backs up my answer in (a) - the model with polynomial 4 behaves in a very similar way to a polynomial of degree 3, leading to a better fit to the data.
+
+###### (g) Fit a cubic model and compute its LOOCV error, 10-fold CV error under seed 34, and comment on the coeffcient estimates and the statistical signiﬁcance of the coeffcient estimates. Compare the LOOCV and 10-fold CV error with the preferred model in (a).
+
+Y = β0 +β1X +β2X2 + β3x3 +ε 
+
+The LOOCV error is:
+
+```{r,echo=FALSE}
+set.seed(34)
+glm.fit.3 <- glm(y ~ poly(x,3), data = Data.Q6)
+cv.error.3 <- cv.glm(Data.Q6, glm.fit.3)$delta
+print(cv.error.3)
+```
+
+The 10-fold CV error is:
+
+```{r,echo=FALSE}
+set.seed(34)
+cv.error.3.k <- cv.glm(Data.Q6, glm.fit.3, K=10)$delta
+print(cv.error.3.k)
+```
+
+The LOOCV and 10-fold CV errors are smaller in the cubic model as opposed to the model with polynomial of degree 4 which is what we expected as the original model was also a cubic model. 
+
+```{r,echo=FALSE}
+summary(glm.fit.3)
+```
+
+We see that the coefficients for x1, x2, and x3, have very small p-values and are therefore statiscally significant. The coefficients get smaller as the degree of x gets larger, and each coefficient is negative - highlightin the negative relatinship between x and y which is what we expected from the scatterplot in (b).
